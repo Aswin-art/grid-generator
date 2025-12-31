@@ -75,7 +75,7 @@ export function GridCanvas({
 
       return { col, row };
     },
-    [columns, rows]
+    [columns, rows],
   );
 
   // Find item at specific cell
@@ -91,7 +91,7 @@ export function GridCanvas({
         );
       });
     },
-    [items]
+    [items],
   );
 
   // Check if area is valid (within bounds and doesn't overlap with non-swappable items)
@@ -104,7 +104,7 @@ export function GridCanvas({
         rowEnd <= rows + 1
       );
     },
-    [columns, rows]
+    [columns, rows],
   );
 
   // Handle click on empty cell to add item
@@ -287,7 +287,7 @@ export function GridCanvas({
                   swapItem.columnStart,
                   swapItem.columnEnd,
                   newSwapRowStart,
-                  newSwapRowEnd
+                  newSwapRowEnd,
                 )
               ) {
                 canSwap = false;
@@ -311,7 +311,7 @@ export function GridCanvas({
             ]);
 
             for (const [_swapId, swapPos] of Object.entries(
-              proposedSwapPositions
+              proposedSwapPositions,
             )) {
               for (let c = swapPos.columnStart; c < swapPos.columnEnd; c++) {
                 for (let r = swapPos.rowStart; r < swapPos.rowEnd; r++) {
@@ -406,11 +406,11 @@ export function GridCanvas({
       if (isResizing) {
         const newColEnd = Math.max(
           draggedItem.columnStart + 1,
-          Math.min(cell.col + 1, columns + 1)
+          Math.min(cell.col + 1, columns + 1),
         );
         const newRowEnd = Math.max(
           draggedItem.rowStart + 1,
-          Math.min(cell.row + 1, rows + 1)
+          Math.min(cell.row + 1, rows + 1),
         );
 
         // For resize, we don't swap - just prevent overlap
@@ -459,7 +459,7 @@ export function GridCanvas({
           items.map((item) => ({
             ...item,
             ...(previewPositions[item.id] || {}),
-          }))
+          })),
         );
       }
 
@@ -519,7 +519,7 @@ export function GridCanvas({
             "flex items-center justify-center rounded-sm border border-dashed",
             occupied
               ? "border-transparent"
-              : "border-border/50 bg-muted/30 hover:border-primary/50 hover:bg-primary/5 cursor-pointer transition-colors duration-200"
+              : "border-border/50 bg-muted/30 hover:border-primary/50 hover:bg-primary/5 cursor-pointer transition-colors duration-200",
           )}
           style={{
             gridColumn: col,
@@ -531,7 +531,7 @@ export function GridCanvas({
               +
             </span>
           )}
-        </button>
+        </button>,
       );
     }
   }
@@ -568,7 +568,7 @@ export function GridCanvas({
         data-testid="grid-canvas"
         className={cn(
           "relative aspect-square w-full rounded-sm border border-border bg-background p-4",
-          (isDragging || isResizing) && "cursor-grabbing"
+          (isDragging || isResizing) && "cursor-grabbing",
         )}
         style={gridStyle}
       >
@@ -612,7 +612,7 @@ export function GridCanvas({
                   isSelected
                     ? "bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2 ring-offset-background shadow-lg cursor-grab"
                     : "bg-primary/70 text-primary-foreground/90 hover:bg-primary/80 cursor-pointer",
-                  isSelected && isActive && "cursor-grabbing shadow-xl"
+                  isSelected && isActive && "cursor-grabbing shadow-xl",
                 )}
                 style={{
                   gridColumn: `${position.columnStart} / ${position.columnEnd}`,
