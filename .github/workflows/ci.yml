@@ -98,6 +98,12 @@ jobs:
           name: build-output
           path: .next-prebuilt
 
+      - name: List artifact contents
+        run: |
+          echo "=== Artifact structure ==="
+          find .next-prebuilt -type f | head -20
+          echo "=== End ==="
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -107,6 +113,7 @@ jobs:
           context: .
           file: Dockerfile.ci
           push: false
+          load: true
           tags: grid-generator:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

@@ -11,9 +11,10 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy pre-built assets from CI artifacts
-COPY --chown=nextjs:nodejs .next-prebuilt/standalone ./
-COPY --chown=nextjs:nodejs .next-prebuilt/static ./.next/static
-COPY --chown=nextjs:nodejs public ./public
+# Artifacts are downloaded with original path structure preserved
+COPY --chown=nextjs:nodejs .next-prebuilt/.next/standalone ./
+COPY --chown=nextjs:nodejs .next-prebuilt/.next/static ./.next/static
+COPY --chown=nextjs:nodejs .next-prebuilt/public ./public
 
 USER nextjs
 
