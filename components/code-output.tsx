@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
 import { Check, Copy } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 
 interface CodeOutputProps {
@@ -26,7 +26,7 @@ export function CodeOutput({ html, css, className }: CodeOutputProps) {
   };
 
   return (
-    <div className={cn("w-full", className)}>
+    <div className={cn("w-full", className)} data-testid="code-output">
       <Tabs defaultValue="html" className="w-full">
         <div className="flex items-center justify-between">
           <TabsList className="h-9 bg-transparent p-0">

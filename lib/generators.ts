@@ -1,9 +1,9 @@
-import type { GridConfig, GridItem, CSSFormat, UIFramework } from "./types";
+import type { CSSFormat, GridConfig, GridItem, UIFramework } from "./types";
 
 // Generate vanilla CSS
 export function generateVanillaCSS(
   config: GridConfig,
-  items: GridItem[]
+  items: GridItem[],
 ): { html: string; css: string } {
   const { columns, rows, gap, columnGap, rowGap, useUniformGap } = config;
 
@@ -38,7 +38,7 @@ export function generateVanillaCSS(
 // Generate Bootstrap classes (using CSS Grid since Bootstrap's grid is 12-column based)
 export function generateBootstrap(
   config: GridConfig,
-  items: GridItem[]
+  items: GridItem[],
 ): { html: string; css: string } {
   const { columns, rows, gap } = config;
 
@@ -46,7 +46,7 @@ export function generateBootstrap(
   let html = `<div class="d-grid" style="grid-template-columns: repeat(${columns}, 1fr); grid-template-rows: repeat(${rows}, 1fr); gap: ${gap}px;">`;
 
   if (items.length > 0) {
-    items.forEach((item, index) => {
+    items.forEach((item) => {
       html += `\n  <div style="grid-column: ${item.columnStart} / ${item.columnEnd}; grid-row: ${item.rowStart} / ${item.rowEnd};">${item.label}</div>`;
     });
   }
@@ -67,7 +67,7 @@ export function generateBootstrap(
 export function generateTailwind(
   config: GridConfig,
   items: GridItem[],
-  framework: UIFramework
+  framework: UIFramework,
 ): { html: string; css: string } {
   const { columns, rows, gap, columnGap, rowGap, useUniformGap } = config;
 
@@ -99,7 +99,7 @@ export function generateTailwind(
 
 function generatePlainTailwind(
   gridClasses: string,
-  items: GridItem[]
+  items: GridItem[],
 ): { html: string; css: string } {
   let html = `<div class="${gridClasses}">`;
 
@@ -123,7 +123,7 @@ function generatePlainTailwind(
 
 function generateShadcnOutput(
   gridClasses: string,
-  items: GridItem[]
+  items: GridItem[],
 ): { html: string; css: string } {
   let html = `{/* shadcn/ui with Tailwind Grid */}
 <div className="${gridClasses}">`;
@@ -153,7 +153,7 @@ import { Card, CardContent } from "@/components/ui/card"
 
 function generateMUIOutput(
   config: GridConfig,
-  items: GridItem[]
+  items: GridItem[],
 ): { html: string; css: string } {
   const { columns, rows, gap } = config;
 
@@ -195,7 +195,7 @@ import Paper from '@mui/material/Paper';
 
 function generateChakraOutput(
   config: GridConfig,
-  items: GridItem[]
+  items: GridItem[],
 ): { html: string; css: string } {
   const { columns, rows, gap } = config;
 
@@ -228,7 +228,7 @@ import { Grid, GridItem, Box } from '@chakra-ui/react'
 
 function generateAntDesignOutput(
   config: GridConfig,
-  items: GridItem[]
+  items: GridItem[],
 ): { html: string; css: string } {
   const { columns, rows, gap } = config;
 
@@ -271,7 +271,7 @@ export function generateCode(
   config: GridConfig,
   items: GridItem[],
   cssFormat: CSSFormat,
-  uiFramework: UIFramework
+  uiFramework: UIFramework,
 ): { html: string; css: string } {
   switch (cssFormat) {
     case "vanilla":

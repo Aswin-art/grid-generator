@@ -19,7 +19,11 @@
     "rules": {
       "recommended": true,
       "suspicious": {
-        "noUnknownAtRules": "off"
+        "noUnknownAtRules": "off",
+        "noArrayIndexKey": "warn"
+      },
+      "a11y": {
+        "noNoninteractiveTabindex": "warn"
       }
     },
     "domains": {

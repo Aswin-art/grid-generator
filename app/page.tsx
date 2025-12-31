@@ -1,18 +1,18 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { CodeOutput } from "@/components/code-output";
 import { GridCanvas } from "@/components/grid-canvas";
 import { GridControls } from "@/components/grid-controls";
-import { CodeOutput } from "@/components/code-output";
-import { generateCode } from "@/lib/generators";
 import { Button } from "@/components/ui/button";
-import { Trash2 } from "lucide-react";
+import { generateCode } from "@/lib/generators";
 import {
+  type CSSFormat,
+  DEFAULT_GRID_CONFIG,
   type GridConfig,
   type GridItem,
-  type CSSFormat,
   type UIFramework,
-  DEFAULT_GRID_CONFIG,
 } from "@/lib/types";
 
 export default function Home() {

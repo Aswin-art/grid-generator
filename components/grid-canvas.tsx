@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef, useCallback, useEffect } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { cn } from "@/lib/utils";
-import type { GridConfig, GridItem } from "@/lib/types";
 import { X } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { GridConfig, GridItem } from "@/lib/types";
+import { cn } from "@/lib/utils";
 
 interface GridCanvasProps {
   config: GridConfig;
@@ -243,49 +243,149 @@ export function GridCanvas({
         const newPositions: Record<string, (typeof previewPositions)[string]> =
           {};
 
-        // Set dragged item's new position
-        newPositions[selectedItem] = {
-          columnStart: newColStart,
-          columnEnd: newColEnd,
-          rowStart: newRowStart,
-          rowEnd: newRowEnd,
+        const originalPos = {
+          columnStart: draggedItem.columnStart,
+          columnEnd: draggedItem.columnEnd,
+          rowStart: draggedItem.rowStart,
+          rowEnd: draggedItem.rowEnd,
         };
 
-        // Swap overlapped items to dragged item's original position
-        if (overlappedItems.length > 0) {
-          const originalPos = {
-            columnStart: draggedItem.columnStart,
-            columnEnd: draggedItem.columnEnd,
-            rowStart: draggedItem.rowStart,
-            rowEnd: draggedItem.rowEnd,
-          };
+        // Check if swap is possible
+        let canSwap = true;
 
-          // For single item overlap, do a direct swap
+        if (overlappedItems.length > 0) {
+          const proposedSwapPositions: Record<
+            string,
+            (typeof previewPositions)[string]
+          > = {};
+
           if (overlappedItems.length === 1) {
             const swapItem = overlappedItems[0];
             const swapWidth = swapItem.columnEnd - swapItem.columnStart;
             const swapHeight = swapItem.rowEnd - swapItem.rowStart;
 
-            // Check if swap item fits in original position
-            const newSwapColEnd = originalPos.columnStart + swapWidth;
-            const newSwapRowEnd = originalPos.rowStart + swapHeight;
-
-            if (
-              isAreaValid(
-                originalPos.columnStart,
-                newSwapColEnd,
-                originalPos.rowStart,
-                newSwapRowEnd
-              )
-            ) {
-              newPositions[swapItem.id] = {
+            if (swapWidth === width && swapHeight === height) {
+              proposedSwapPositions[swapItem.id] = {
                 columnStart: originalPos.columnStart,
-                columnEnd: newSwapColEnd,
+                columnEnd: originalPos.columnEnd,
                 rowStart: originalPos.rowStart,
+                rowEnd: originalPos.rowEnd,
+              };
+            } else {
+              // Different sizes - swap not possible
+              canSwap = false;
+            }
+          } else {
+            const rowOffset = originalPos.rowStart - newRowStart;
+
+            for (const swapItem of overlappedItems) {
+              const newSwapRowStart = swapItem.rowStart + rowOffset;
+              const newSwapRowEnd = swapItem.rowEnd + rowOffset;
+
+              if (
+                !isAreaValid(
+                  swapItem.columnStart,
+                  swapItem.columnEnd,
+                  newSwapRowStart,
+                  newSwapRowEnd
+                )
+              ) {
+                canSwap = false;
+                break;
+              }
+
+              proposedSwapPositions[swapItem.id] = {
+                columnStart: swapItem.columnStart,
+                columnEnd: swapItem.columnEnd,
+                rowStart: newSwapRowStart,
                 rowEnd: newSwapRowEnd,
               };
             }
           }
+
+          // Validate no overlap between swap items and other non-involved items
+          if (canSwap) {
+            const involvedIds = new Set([
+              selectedItem,
+              ...overlappedItems.map((i) => i.id),
+            ]);
+
+            for (const [_swapId, swapPos] of Object.entries(
+              proposedSwapPositions
+            )) {
+              for (let c = swapPos.columnStart; c < swapPos.columnEnd; c++) {
+                for (let r = swapPos.rowStart; r < swapPos.rowEnd; r++) {
+                  const itemAtCell = getItemAtCell(c, r);
+                  if (itemAtCell && !involvedIds.has(itemAtCell.id)) {
+                    canSwap = false;
+                    break;
+                  }
+                }
+                if (!canSwap) break;
+              }
+              if (!canSwap) break;
+            }
+          }
+
+          // Validate no overlap between swapped items themselves in new positions
+          if (canSwap && overlappedItems.length > 1) {
+            const swapPositionsArray = Object.entries(proposedSwapPositions);
+            for (let i = 0; i < swapPositionsArray.length; i++) {
+              for (let j = i + 1; j < swapPositionsArray.length; j++) {
+                const posA = swapPositionsArray[i][1];
+                const posB = swapPositionsArray[j][1];
+
+                const overlaps =
+                  posA.columnStart < posB.columnEnd &&
+                  posA.columnEnd > posB.columnStart &&
+                  posA.rowStart < posB.rowEnd &&
+                  posA.rowEnd > posB.rowStart;
+
+                if (overlaps) {
+                  canSwap = false;
+                  break;
+                }
+              }
+              if (!canSwap) break;
+            }
+          }
+
+          // Validate dragged item's new position doesn't overlap with non-involved items
+          if (canSwap) {
+            const involvedIds = new Set([
+              selectedItem,
+              ...overlappedItems.map((i) => i.id),
+            ]);
+
+            for (let c = newColStart; c < newColEnd; c++) {
+              for (let r = newRowStart; r < newRowEnd; r++) {
+                const itemAtCell = getItemAtCell(c, r);
+                if (itemAtCell && !involvedIds.has(itemAtCell.id)) {
+                  canSwap = false;
+                  break;
+                }
+              }
+              if (!canSwap) break;
+            }
+          }
+
+          // If swap is valid, apply all swap positions
+          if (canSwap) {
+            Object.assign(newPositions, proposedSwapPositions);
+          }
+        }
+
+        // Only set dragged item's new position if swap is valid (or no overlap)
+        if (canSwap) {
+          newPositions[selectedItem] = {
+            columnStart: newColStart,
+            columnEnd: newColEnd,
+            rowStart: newRowStart,
+            rowEnd: newRowEnd,
+          };
+        } else {
+          // Revert to original position - swap failed
+          newPositions[selectedItem] = originalPos;
         }
 
         // Keep other items in their current positions
@@ -304,11 +404,11 @@ export function GridCanvas({
       }
 
       if (isResizing) {
-        let newColEnd = Math.max(
+        const newColEnd = Math.max(
           draggedItem.columnStart + 1,
           Math.min(cell.col + 1, columns + 1)
         );
-        let newRowEnd = Math.max(
+        const newRowEnd = Math.max(
           draggedItem.rowStart + 1,
           Math.min(cell.row + 1, rows + 1)
         );
@@ -403,9 +503,18 @@ export function GridCanvas({
     for (let col = 1; col <= columns; col++) {
       const occupied = getItemAtCell(col, row);
       cells.push(
-        <div
+        <button
+          type="button"
           key={`cell-${col}-${row}`}
+          tabIndex={occupied ? -1 : 0}
           onClick={() => !occupied && handleCellClick(col, row)}
+          onKeyDown={(e) => {
+            if (!occupied && (e.key === "Enter" || e.key === " ")) {
+              e.preventDefault();
+              handleCellClick(col, row);
+            }
+          }}
+          disabled={!!occupied}
           className={cn(
             "flex items-center justify-center rounded-sm border border-dashed",
             occupied
@@ -422,7 +531,7 @@ export function GridCanvas({
               +
             </span>
           )}
-        </div>
+        </button>
       );
     }
   }
@@ -449,7 +558,14 @@ export function GridCanvas({
       {/* Grid canvas */}
       <div
         ref={canvasRef}
+        role="application"
+        aria-label="Grid canvas"
         onClick={handleCanvasClick}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") setSelectedItem(null);
+        }}
+        tabIndex={0}
+        data-testid="grid-canvas"
         className={cn(
           "relative aspect-square w-full rounded-sm border border-border bg-background p-4",
           (isDragging || isResizing) && "cursor-grabbing"
@@ -543,6 +659,8 @@ export function GridCanvas({
                         className="h-2.5 w-2.5 text-primary-foreground"
                         viewBox="0 0 10 10"
                         fill="currentColor"
+                        aria-label="Resize handle"
+                        role="img"
                       >
                         <path d="M9 1v8H1l8-8z" />
                       </svg>

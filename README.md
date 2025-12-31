@@ -1,36 +1,100 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Grid Generator
+
+Visual CSS Grid layout generator built with Next.js. Click cells to add items, drag to move, resize from corners, and export to CSS.
+
+![Grid Generator](https://img.shields.io/badge/Next.js-16.1-black?style=flat-square&logo=next.js)
+![Playwright](https://img.shields.io/badge/Playwright-E2E-45ba4b?style=flat-square&logo=playwright)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker)
+
+## Features
+
+- 🎨 Interactive grid canvas with drag & drop
+- 📐 Adjustable columns, rows, and gap
+- 🔄 Export to Vanilla CSS, Bootstrap, or TailwindCSS
+- 📦 UI framework support (shadcn/ui, MUI, Chakra, Ant Design)
+- ⚡ Real-time code generation
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
+# Install dependencies
+npm install
+
+# Run development server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) to see the app.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Scripts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Command           | Description                   |
+| ----------------- | ----------------------------- |
+| `npm run dev`     | Start development server      |
+| `npm run build`   | Build for production          |
+| `npm run start`   | Start production server       |
+| `npm run lint`    | Run Biome linter              |
+| `npm run format`  | Format code with Biome        |
+| `npm test`        | Run Playwright E2E tests      |
+| `npm run test:ui` | Run tests with interactive UI |
 
-## Learn More
+## Testing
 
-To learn more about Next.js, take a look at the following resources:
+This project uses [Playwright](https://playwright.dev/) for E2E testing.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# Run all tests
+npm test
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Run tests with UI
+npm run test:ui
 
-## Deploy on Vercel
+# Run specific test file
+npx playwright test grid-generator.spec.ts
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Docker
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Development
+
+```bash
+docker compose up
+```
+
+### Production
+
+```bash
+# Build image
+docker build -t grid-generator .
+
+# Run container
+docker run -p 3000:3000 grid-generator
+```
+
+## CI/CD
+
+GitHub Actions workflow runs on push/PR to `main`:
+
+- **Lint & Build** - Code quality and production build
+- **E2E Tests** - Playwright tests in Microsoft container
+- **Docker Build** - Build image using pre-built assets
+
+Workflow features:
+
+- Parallel job execution (lint-and-build + test)
+- Concurrency control (cancels older runs)
+- Artifact caching between jobs
+- Skips on markdown-only changes
+
+## Tech Stack
+
+- [Next.js 16](https://nextjs.org/) - React framework
+- [TailwindCSS 4](https://tailwindcss.com/) - Styling
+- [Radix UI](https://radix-ui.com/) - Primitives
+- [Motion](https://motion.dev/) - Animations
+- [Biome](https://biomejs.dev/) - Linting & formatting
+- [Playwright](https://playwright.dev/) - E2E testing
+
+## License
+
+MIT

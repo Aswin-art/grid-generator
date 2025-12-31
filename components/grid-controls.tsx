@@ -1,7 +1,6 @@
 "use client";
 
 import { Label } from "@/components/ui/label";
-import { Slider } from "@/components/ui/slider";
 import {
   Select,
   SelectContent,
@@ -9,7 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { GridConfig, CSSFormat, UIFramework } from "@/lib/types";
+import { Slider } from "@/components/ui/slider";
+import type { CSSFormat, GridConfig, UIFramework } from "@/lib/types";
 
 interface GridControlsProps {
   config: GridConfig;
@@ -48,6 +48,7 @@ export function GridControls({
             </div>
             <Slider
               id="columns"
+              data-testid="columns-input"
               min={1}
               max={12}
               step={1}
@@ -69,6 +70,7 @@ export function GridControls({
             </div>
             <Slider
               id="rows"
+              data-testid="rows-input"
               min={1}
               max={12}
               step={1}
